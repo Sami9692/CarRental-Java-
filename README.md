@@ -105,3 +105,42 @@ CarRentalSystem/
     └── model/                          ← POJOs / Entities
 ```
 
+## OOP Design Principles Applied
+
+| Principle        | Where Applied |
+|------------------|---------------|
+| Encapsulation    | All model classes use `private` fields + getters/setters |
+| Abstraction      | All DAO operations defined as interfaces (`CarDAO`, `UserDAO`, etc.) |
+| Inheritance      | Could extend `BaseDAOImpl` for shared JDBC boilerplate (extension point) |
+| Single Responsibility | Each class has one job: model=data, DAO=queries, service=logic, controller=UI |
+| Open/Closed      | New features add new DAO/Service; existing code unchanged |
+| Dependency Inversion | Controllers depend on service abstractions, not DAO implementations directly |
+
+## Design Patterns Used
+
+| Pattern   | Implementation |
+|-----------|----------------|
+| Singleton  | `DBConnection` — one shared connection |
+| DAO        | `CarDAO`, `UserDAO`, etc. — separate data access from business logic |
+| MVC        | Model → DAO/Service, View → `MainMenu`/Controllers, Controller → `*Controller` |
+
+## Cost Calculation Formula
+
+```
+totalCost = (car.dailyRate + insurance.dailyPrice) × numberOfDays
+```
+Implemented in `ReservationServiceImpl.calculateTotalCost()`.
+
+## Overlap Detection Query
+
+A new reservation `[newStart, newEnd)` conflicts with an existing one `[exStart, exEnd)` when:
+```sql
+existing.start_date < newEnd  AND  existing.end_date > newStart
+```
+Implemented in `ReservationDAOImpl.isCarAvailable()` using a `PreparedStatement`.
+
+## Default Admin Account
+After running `schema.sql`, register an admin via the console and manually set `is_admin = TRUE` in MySQL:
+```sql
+UPDATE User SET is_admin = TRUE WHERE email = 'youremail@example.com';
+```
